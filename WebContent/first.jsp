@@ -1,48 +1,101 @@
 <%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
-<%@ page import = "java.sql.*" %>
+	pageEncoding="EUC-KR"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
-<title>Insert title here</title>
+<title>first</title>
 <!-- Bootstrap -->
-    <link href="bootstrap-3.3.4-dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
-
+<link href="bootstrap-3.3.4-dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
 </head>
 <body>
-                  
-<%
-Connection conn = null;                                        // null·Î ÃÊ±âÈ­ ÇÑ´Ù.
 
-try{
+	<%@ page import="java.sql.*"%>
+	<%@ page import="java.util.*"%>
+	<%
+		response.setCharacterEncoding("EUC-KR");
+		String email = request.getParameter("email");
+		String password = request.getParameter("password");
+		String type = request.getParameter("type");
+	%>
 
-String url = "jdbc:oracle:thin:@localhost:1521:orcl";        // »ç¿ëÇÏ·Á´Â µ¥ÀÌÅÍº£ÀÌ½º¸íÀ» Æ÷ÇÔÇÑ URL ±â¼ú
+	<%=email%>
+	<%=password%>
+	<%=type%>
 
-String id = "scott";                                                    // »ç¿ëÀÚ °èÁ¤
+	<%
+		ArrayList list = new ArrayList();
+		Connection conn = null; // nullë¡œ ì´ˆê¸°í™” í•œë‹¤.
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			String url = "jdbc:oracle:thin:@localhost:1521:orcl"; // ì‚¬ìš©í•˜ë ¤ëŠ” ë°ì´í„°ë² ì´ìŠ¤ëª…ì„ í¬í•¨í•œ URL ê¸°ìˆ 
+			String id = "scott"; // ì‚¬ìš©ìž ê³„ì •
+			String pw = "tiger"; // ì‚¬ìš©ìž ê³„ì •ì˜ íŒ¨ìŠ¤ì›Œë“œ
 
-String pw = "tiger";                                                // »ç¿ëÀÚ °èÁ¤ÀÇ ÆÐ½º¿öµå
+			Class.forName("oracle.jdbc.driver.OracleDriver"); // ë°ì´í„°ë² ì´ìŠ¤ì™€ ì—°ë™í•˜ê¸° ìœ„í•´ DriverManagerì— ë“±ë¡í•œë‹¤.
+			conn = DriverManager.getConnection(url, id, pw); // DriverManager ê°ì²´ë¡œë¶€í„° Connection ê°ì²´ë¥¼ ì–»ì–´ì˜¨ë‹¤.
+
+			String sql = "select * from test where test_type='" + type + "'"; // sql ì¿¼ë¦¬
+			pstmt = conn.prepareStatement(sql); // prepareStatementì—ì„œ í•´ë‹¹ sqlì„ ë¯¸ë¦¬ ì»´íŒŒì¼í•œë‹¤.
+			rs = pstmt.executeQuery(); // ì¿¼ë¦¬ë¥¼ ì‹¤í–‰í•˜ê³  ê²°ê³¼ë¥¼ ResultSet ê°ì²´ì— ë‹´ëŠ”ë‹¤.
+
+			while (rs.next()) { // ê²°ê³¼ë¥¼ í•œ í–‰ì”© ëŒì•„ê°€ë©´ì„œ ê°€ì ¸ì˜¨ë‹¤.
+				list.add(rs.getString("test_type") + "  " + rs.getString("test_question") + "  "
+						+ rs.getString("test_answer1") + "  " + rs.getString("test_answer2") + "  "
+						+ rs.getString("test_answer3") + "  " + rs.getString("test_answer4") + "  "
+						+ rs.getString("test_answer"));
+	%>
 
 
+	<%
+		}
+		} catch (Exception e) { // ì˜ˆì™¸ê°€ ë°œìƒí•˜ë©´ ì˜ˆì™¸ ìƒí™©ì„ ì²˜ë¦¬í•œë‹¤.
+			e.printStackTrace();
+			out.println("member í…Œì´ë¸” í˜¸ì¶œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.");
+		} finally { // ì¿¼ë¦¬ê°€ ì„±ê³µ ë˜ëŠ” ì‹¤íŒ¨ì— ìƒê´€ì—†ì´ ì‚¬ìš©í•œ ìžì›ì„ í•´ì œ í•œë‹¤.  (ìˆœì„œì¤‘ìš”)
+			if (rs != null)
+				try {
+					rs.close();
+				} catch (SQLException sqle) {
+				} // Resultset ê°ì²´ í•´ì œ
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException sqle) {
+				} // PreparedStatement ê°ì²´ í•´ì œ
+			if (conn != null)
+				try {
+					conn.close();
+				} catch (SQLException sqle) {
+				} // Connection í•´ì œ
+		}
+	%>
 
-Class.forName("oracle.jdbc.driver.OracleDriver");                       // µ¥ÀÌÅÍº£ÀÌ½º¿Í ¿¬µ¿ÇÏ±â À§ÇØ DriverManager¿¡ µî·ÏÇÑ´Ù.
+	<form action="result.jsp">
 
-conn=DriverManager.getConnection(url,id,pw);              // DriverManager °´Ã¼·ÎºÎÅÍ Connection °´Ã¼¸¦ ¾ò¾î¿Â´Ù.
-
-out.println("Á¦´ë·Î ¿¬°áµÇ¾ú½À´Ï´Ù.");                            // Ä¿³Ø¼ÇÀÌ Á¦´ë·Î ¿¬°áµÇ¸é ¼öÇàµÈ´Ù.
-
-
-
-}catch(Exception e){                                                    // ¿¹¿Ü°¡ ¹ß»ýÇÏ¸é ¿¹¿Ü »óÈ²À» Ã³¸®ÇÑ´Ù.
-
-e.printStackTrace();
-
-}
-
-%>
+		<table width="550" border="1">
+			<%
+				for (int i = 0, j = 0; i < list.size(); i++) {
+			%>
+			<tr width="100">
+				<td><%=list.get(i)%></td>
+				<td><input type="radio" name="<%=i%>" value="1" /> <input
+					type="radio" name="<%=i%>" value="2" /> <input type="radio"
+					name="<%=i%>" value="3" /> <input type="radio" name="<%=i%>"
+					value="4" />
+			</tr>
+			<%
+				}
+			%>
+		</table>
+		<input type="submit" value="ì‹œí—˜ì™„ë£Œ">
+	</form>
 </body>
-</html> 
+</html>
