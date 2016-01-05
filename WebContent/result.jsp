@@ -9,11 +9,40 @@
 <body>
    <%
       response.setCharacterEncoding("EUC-KR");
-      String result1 = request.getParameter("0");
-      String result2 = request.getParameter("1");
+   	  String allqt = request.getParameter("allqt");
+   	  int intAllqt = Integer.valueOf(allqt);
+   	  int score = 0;
+  
+   	  String qtAnswer = null;
+   	  String userAnswer = null;
+   	  
+   	  for(int i=0; i<intAllqt; i++){
+   		  qtAnswer = request.getParameter("answer"+i);
+   		  userAnswer =  request.getParameter(""+i);
+   		  if(qtAnswer.equals(userAnswer)){
+   			  score++;
+   			  
+   		  }
+   		  
+   	  }
+ 
    %>
    
-   <%=result1 %><br>
-   <%=result2 %><br>
+ 점수 : <%=score %><br>
+   <%
+      if(score>=7){
+         %>
+         축하합니다 합격입니다
+         <%
+      }else{
+         %>
+         불합격입니다
+         <%
+         
+      }
+   %>
+  
+  
+  
 </body>
 </html>
